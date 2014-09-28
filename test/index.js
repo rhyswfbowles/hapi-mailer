@@ -15,130 +15,112 @@ var expect = Lab.expect;
 
 describe('Mailer', function () {
 
-    describe('with views', function () {
+    it('sends the email when a view is used', function (done) {
 
         var server = new Hapi.Server(0);
 
-        before(function (done) {
+        var handler = function (request, reply) {
 
-            var handler = function (request, reply) {
+            var Mailer = request.server.plugins.mailer;
 
-                var Mailer = request.server.plugins.mailer;
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: 'handlebars.html'
-                    },
-                    context: {
-                        content: 'HANDLEBARS'
-                    }
-                };
-
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
-            };
-
-            server.route({ method: 'POST', path: '/', handler: handler });
-
-            var options = {
-                transport: require('nodemailer-stub-transport')(),
-                views: {
-                    engines: {
-                        html: {
-                            module: require('handlebars'),
-                            path: Path.join(__dirname, 'fixtures/templates')
-                        }
-                    }
+            var data = {
+                from: 'from@example.com',
+                to: 'to@example.com',
+                subject: 'test',
+                html: {
+                    path: 'handlebars.html'
+                },
+                context: {
+                    content: 'HANDLEBARS'
                 }
             };
 
-            var plugin = {
-                plugin: require('..'),
-                options: options
-            };
+            Mailer.sendMail(data, function (err, info) {
 
-            server.pack.register(plugin, function (err) {
+                reply(info);
+            });
+        };
 
-                server.start(function () {
+        server.route({ method: 'POST', path: '/', handler: handler });
+
+        var options = {
+            transport: require('nodemailer-stub-transport')(),
+            views: {
+                engines: {
+                    html: {
+                        module: require('handlebars'),
+                        path: Path.join(__dirname, 'fixtures/templates')
+                    }
+                }
+            }
+        };
+
+        var plugin = {
+            plugin: require('..'),
+            options: options
+        };
+
+        server.pack.register(plugin, function (err) {
+
+            server.start(function () {
+
+                server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                    expect(res.result).to.be.an('object');
+                    expect(res.result.response.toString()).to.contain('<p>HANDLEBARS</p>');
 
                     done();
                 });
             });
         });
-
-        it('renders the template and sends the email', function (done) {
-
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an('object');
-                expect(res.result.response.toString()).to.contain('<p>HANDLEBARS</p>');
-
-                done();
-            });
-        });
-
     });
 
-    describe('without views', function () {
+    it('sends the email when a view is not used', function (done) {
 
         var server = new Hapi.Server(0);
 
-        before(function (done) {
+        var handler = function (request, reply) {
 
-            var handler = function (request, reply) {
+            var Mailer = request.server.plugins.mailer;
 
-                var Mailer = request.server.plugins.mailer;
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: Path.join(__dirname, 'fixtures/templates/nodemailer.html')
-                    }
-                };
-
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
+            var data = {
+                from: 'from@example.com',
+                to: 'to@example.com',
+                subject: 'test',
+                html: {
+                    path: Path.join(__dirname, 'fixtures/templates/nodemailer.html')
+                }
             };
 
-            server.route({ method: 'POST', path: '/', handler: handler });
+            Mailer.sendMail(data, function (err, info) {
 
-            var options = {
-                transport: require('nodemailer-stub-transport')()
-            };
+                reply(info);
+            });
+        };
 
-            var plugin = {
-                plugin: require('..'),
-                options: options
-            };
+        server.route({ method: 'POST', path: '/', handler: handler });
 
-            server.pack.register(plugin, function (err) {
+        var options = {
+            transport: require('nodemailer-stub-transport')()
+        };
 
-                server.start(function () {
+        var plugin = {
+            plugin: require('..'),
+            options: options
+        };
+
+        server.pack.register(plugin, function (err) {
+
+            server.start(function () {
+
+                server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                    expect(res.result).to.be.an('object');
+                    expect(res.result.response.toString()).to.contain('<p>NODEMAILER</p>');
 
                     done();
                 });
             });
         });
-
-        it('renders the template and sends the email', function (done) {
-
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an('object');
-                expect(res.result.response.toString()).to.contain('<p>NODEMAILER</p>');
-
-                done();
-            });
-        });
-
     });
 });
