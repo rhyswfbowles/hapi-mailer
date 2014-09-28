@@ -12,57 +12,71 @@ var describe = lab.describe;
 var it = lab.it;
 var expect = Lab.expect;
 
-// Create server
-var server = new Hapi.Server(0);
 
 describe('Mailer', function () {
 
-    before(function (done) {
+    describe('with views', function () {
 
-        var handler = function (request, reply) {
+        var server = new Hapi.Server(0);
 
-            var Mailer = request.server.plugins.mailer;
+        before(function (done) {
 
-            var data = {
-                from: 'from@example.com',
-                to: 'to@example.com',
-                subject: 'test',
-                html: {
-                    path: 'handlebars.html'
-                },
-                context: {
-                    content: 'HANDLEBARS'
+            var handler = function (request, reply) {
+
+                var Mailer = request.server.plugins.mailer;
+
+                var data = {
+                    from: 'from@example.com',
+                    to: 'to@example.com',
+                    subject: 'test',
+                    html: {
+                        path: 'handlebars.html'
+                    },
+                    context: {
+                        content: 'HANDLEBARS'
+                    }
+                };
+
+                Mailer.sendMail(data, function (err, info) {
+
+                    reply(info);
+                });
+            };
+
+            server.route({ method: 'POST', path: '/', handler: handler });
+
+            var options = {
+                transport: require('nodemailer-stub-transport')(),
+                views: {
+                    engines: {
+                        html: {
+                            module: require('handlebars'),
+                            path: Path.join(__dirname, 'fixtures/templates')
+                        }
+                    }
                 }
             };
 
-            Mailer.sendMail(data, function (err, info) {
+            var plugin = {
+                plugin: require('..'),
+                options: options
+            };
 
-                reply(info);
+            server.pack.register(plugin, function (err) {
+
+                server.start(function () {
+
+                    done();
+                });
             });
-        };
+        });
 
-        server.route({ method: 'POST', path: '/', handler: handler });
+        it('renders the template and sends the email', function (done) {
 
-        var options = {
-            transport: require('nodemailer-stub-transport')(),
-            views: {
-                engines: {
-                    html: {
-                        module: require('handlebars'),
-                        path: Path.join(__dirname, 'fixtures/templates')
-                    }
-                }
-            }
-        };
+            server.inject({ method: 'POST', url: '/' }, function (res) {
 
-        var plugin = {
-            plugin: require('..'),
-            options: options
-        };
-
-        server.pack.register(plugin, function (err) {
-
-            server.start(function () {
+                expect(res.result).to.be.an('object');
+                expect(res.result.response.toString()).to.contain('<p>HANDLEBARS</p>');
 
                 done();
             });
@@ -70,15 +84,61 @@ describe('Mailer', function () {
 
     });
 
-    it('sends the email', function (done) {
+    describe('without views', function () {
 
-        server.inject({ method: 'POST', url: '/' }, function (res) {
+        var server = new Hapi.Server(0);
 
-            expect(res.result).to.be.an('object');
-            expect(res.result.response.toString()).to.contain('<p>HANDLEBARS</p>');
+        before(function (done) {
 
-            done();
+            var handler = function (request, reply) {
+
+                var Mailer = request.server.plugins.mailer;
+
+                var data = {
+                    from: 'from@example.com',
+                    to: 'to@example.com',
+                    subject: 'test',
+                    html: {
+                        path: Path.join(__dirname, 'fixtures/templates/nodemailer.html')
+                    }
+                };
+
+                Mailer.sendMail(data, function (err, info) {
+
+                    reply(info);
+                });
+            };
+
+            server.route({ method: 'POST', path: '/', handler: handler });
+
+            var options = {
+                transport: require('nodemailer-stub-transport')()
+            };
+
+            var plugin = {
+                plugin: require('..'),
+                options: options
+            };
+
+            server.pack.register(plugin, function (err) {
+
+                server.start(function () {
+
+                    done();
+                });
+            });
         });
-    });
 
+        it('renders the template and sends the email', function (done) {
+
+            server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                expect(res.result).to.be.an('object');
+                expect(res.result.response.toString()).to.contain('<p>NODEMAILER</p>');
+
+                done();
+            });
+        });
+
+    });
 });
