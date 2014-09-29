@@ -1,4 +1,4 @@
-# Hapi mailer plugin
+# Hapi mailer plugin [![Build Status](https://travis-ci.org/gergoerdosi/hapi-mailer.svg)](https://travis-ci.org/gergoerdosi/hapi-mailer)
 
 A wrapper around Nodemailer used for sending email. It can be used with or without a template engine.
 
