@@ -1,14 +1,14 @@
 {
-  "name": "hapi-nodemailer",
+  "name": "hapi-mailer",
   "version": "0.0.1",
-  "description": "Nodemailer plugin for hapi.",
+  "description": "Mailer plugin for hapi.",
   "main": "index.js",
   "scripts": {
     "test": "make test"
   },
   "repository": {
     "type": "git",
-    "url": "https://gergoerdosi@github.com/gergoerdosi/hapi-nodemailer.git"
+    "url": "https://gergoerdosi@github.com/gergoerdosi/hapi-mailer.git"
   },
   "keywords": [
     "hapi",
@@ -20,9 +20,9 @@
   "author": "Gergo Erdosi <gergo@gergoerdosi.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gergoerdosi/hapi-nodemailer/issues"
+    "url": "https://github.com/gergoerdosi/hapi-mailer/issues"
   },
-  "homepage": "https://github.com/gergoerdosi/hapi-nodemailer",
+  "homepage": "https://github.com/gergoerdosi/hapi-mailer",
   "dependencies": {
     "items": "1.x.x",
     "nodemailer": "^1.3.x"
