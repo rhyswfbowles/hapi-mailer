@@ -20,29 +20,31 @@ describe('Mailer', function () {
 
         var server = new Hapi.Server();
 
-        var handler = function (request, reply) {
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
 
-            var Mailer = request.server.plugins.mailer;
+                var Mailer = request.server.plugins.mailer;
 
-            var data = {
-                from: 'from@example.com',
-                to: 'to@example.com',
-                subject: 'test',
-                html: {
-                    path: 'handlebars.html'
-                },
-                context: {
-                    content: 'HANDLEBARS'
-                }
-            };
+                var data = {
+                    from: 'from@example.com',
+                    to: 'to@example.com',
+                    subject: 'test',
+                    html: {
+                        path: 'handlebars.html'
+                    },
+                    context: {
+                        content: 'HANDLEBARS'
+                    }
+                };
 
-            Mailer.sendMail(data, function (err, info) {
+                Mailer.sendMail(data, function (err, info) {
 
-                reply(info);
-            });
-        };
-
-        server.route({ method: 'POST', path: '/', handler: handler });
+                    reply(info);
+                });
+            }
+        });
 
         var options = {
             transport: require('nodemailer-stub-transport')(),
