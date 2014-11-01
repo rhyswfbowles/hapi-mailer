@@ -20,6 +20,8 @@ The plugin accepts the following configuration options:
 **Example:**
 
 ```
+var Handlebars = require('handlebars');
+
 var options = {
     transport: {
         service: 'Gmail',
@@ -31,7 +33,7 @@ var options = {
     views: {
         engines: {
             html: {
-                module: require('handlebars'),
+                module: Handlebars.create(),
                 path: Path.join(__dirname, 'lib/views/emails')
             }
         }
@@ -61,8 +63,6 @@ In handlers, the `Mailer` object can be accessed as `request.server.plugins.mail
 ```
 var handler = function (request, reply) {
 
-    var Mailer = request.server.plugins.mailer;
-
     var data = {
         from: 'example@gmail.com',
         to: 'to@example.com',
@@ -75,9 +75,10 @@ var handler = function (request, reply) {
         }
     };
 
+    var Mailer = request.server.plugins.mailer;
     Mailer.sendMail(data, function (err, info) {
 
-        reply().code(200);
+        reply();
     });
 };
 
