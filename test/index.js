@@ -1,3 +1,5 @@
+'use strict';
+
 // Load external modules
 var Code = require('code');
 var Hapi = require('hapi');
@@ -7,8 +9,6 @@ var Path = require('path');
 
 // Test shortcuts
 var lab = exports.lab = Lab.script();
-var before = lab.before;
-var after = lab.after;
 var describe = lab.describe;
 var it = lab.it;
 var expect = Code.expect;
