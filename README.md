@@ -41,11 +41,11 @@ var options = {
 };
 
 var plugin = {
-    plugin: require('hapi-mailer'),
+    register: require('hapi-mailer'),
     options: options
 };
 
-server.pack.register(plugin, function (err) {
+server.register(plugin, function (err) {
     ...
 });
 
