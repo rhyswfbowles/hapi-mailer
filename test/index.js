@@ -2,6 +2,7 @@
 
 // Load external modules
 var Code = require('code');
+var Handlebars = require('handlebars');
 var Hapi = require('hapi');
 var Lab = require('lab');
 var Nodemailer = require('nodemailer');
@@ -19,6 +20,7 @@ describe('Mailer', function () {
     it('sends the email when a view is used', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
 
         server.route({
             method: 'POST',
@@ -51,7 +53,7 @@ describe('Mailer', function () {
             views: {
                 engines: {
                     html: {
-                        module: require('handlebars'),
+                        module: Handlebars.create(),
                         path: Path.join(__dirname, 'templates')
                     }
                 }
@@ -59,11 +61,11 @@ describe('Mailer', function () {
         };
 
         var plugin = {
-            plugin: require('..'),
+            register: require('..'),
             options: options
         };
 
-        server.pack.register(plugin, function (err) {
+        server.register(plugin, function (err) {
 
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
@@ -78,6 +80,7 @@ describe('Mailer', function () {
     it('sends the email when content is loaded from file', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
 
         server.route({
             method: 'POST',
@@ -102,13 +105,13 @@ describe('Mailer', function () {
         });
 
         var plugin = {
-            plugin: require('..'),
+            register: require('..'),
             options: {
                 transport: require('nodemailer-stub-transport')()
             }
         };
 
-        server.pack.register(plugin, function (err) {
+        server.register(plugin, function (err) {
 
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
@@ -123,6 +126,7 @@ describe('Mailer', function () {
     it('send the email when content is a string', function (done) {
 
         var server = new Hapi.Server();
+        server.connection();
 
         server.route({
             method: 'POST',
@@ -145,13 +149,13 @@ describe('Mailer', function () {
         });
 
         var plugin = {
-            plugin: require('..'),
+            register: require('..'),
             options: {
                 transport: require('nodemailer-stub-transport')()
             }
         };
 
-        server.pack.register(plugin, function (err) {
+        server.register(plugin, function (err) {
 
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
@@ -166,6 +170,7 @@ describe('Mailer', function () {
     it('throws an error when rendering fails', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        server.connection();
 
         server.route({
             method: 'POST',
@@ -198,7 +203,7 @@ describe('Mailer', function () {
             views: {
                 engines: {
                     html: {
-                        module: require('handlebars'),
+                        module: Handlebars.create(),
                         path: Path.join(__dirname, 'templates')
                     }
                 }
@@ -206,11 +211,11 @@ describe('Mailer', function () {
         };
 
         var plugin = {
-            plugin: require('..'),
+            register: require('..'),
             options: options
         };
 
-        server.pack.register(plugin, function (err) {
+        server.register(plugin, function (err) {
 
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
