@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "code": "1.x.x",
-    "handlebars": "2.x.x",
+    "handlebars": "4.x.x",
     "hapi": "8.x.x",
     "lab": "5.x.x",
     "nodemailer-stub-transport": "^0.1.4"
